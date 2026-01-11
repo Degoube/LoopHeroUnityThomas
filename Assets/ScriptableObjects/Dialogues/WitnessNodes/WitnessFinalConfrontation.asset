@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d955009dc95d3c4f97ff5ac8e135c71, type: 3}
+  m_Name: WitnessFinalConfrontation
+  m_EditorClassIdentifier: 
+  speakerName: "Le T\xE9moin"
+  dialogueText: "Vous comprenez maintenant. La boucle, le cycle, l'\xE9ternel recommencement.\r\n\r\nTenterez-vous
+    de briser ce cycle ? Oserez-vous tout risquer pour mettre fin \xE0 cette prison
+    \xE9ternelle ?"
+  requiredFlags:
+  - loop_aware
+  forbiddenFlags:
+  - truth_done
+  flagsToAddOnVisit: []
+  flagsToRemoveOnVisit: []
+  choices:
+  - choiceText: Oui, je vais briser le cycle
+    requiredFlags: []
+    forbiddenFlags: []
+    flagsToAdd:
+    - truth_done
+    flagsToRemove: []
+    nextNode: {fileID: 11400000, guid: 16e16730f4952ff48864a69e6b884a32, type: 2}
+  nextNode: {fileID: 0}

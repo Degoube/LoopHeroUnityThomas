@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4cac6a7d59cf9b4aaf6c0399d7e7cf1, type: 3}
+  m_Name: WitnessDialoguesIncomplete
+  m_EditorClassIdentifier: 
+  dialogueName: "T\xE9moin - Qu\xEAtes Incompl\xE8tes"
+  description: "Dialogue quand le joueur revient sans avoir les 3 qu\xEAtes"
+  startNode: {fileID: 11400000, guid: d216605264d7b33409c74a2b253a1f4e, type: 2}
+  requiredFlagToStart: 
+  flagToSetOnComplete: 

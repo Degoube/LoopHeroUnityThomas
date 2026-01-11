@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6122123632a106b43b6089d5eb76b7dd, type: 3}
+  m_Name: WitnessTile
+  m_EditorClassIdentifier: 
+  tileType: 1
+  tileName: "Le T\xE9moin"
+  description: "Un mlyst\xE9riux personnages se trouve ici "
+  tileIcon: {fileID: 0}
+  tileColor: {r: 0.8023014, g: 0, b: 1, a: 1}
+  tilePrefab: {fileID: 8845049165375227784, guid: 2bb1a1f5c538a034e81f22920c3d3d06, type: 3}
+  encounterChance: 0
+  isPassable: 1
+  triggersOnEnter: 1
+  canBeRevisited: 1
+  goldReward: 0
+  experienceReward: 0
+  enterSound: {fileID: 0}
+  actionSound: {fileID: 0}

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4cac6a7d59cf9b4aaf6c0399d7e7cf1, type: 3}
+  m_Name: AltarDialogue
+  m_EditorClassIdentifier: 
+  dialogueName: "Autel Activ\xE9"
+  description: Dialogue quand le joueur active l'autel
+  startNode: {fileID: 11400000, guid: 85992edf9b737bd498b838ea87a21d70, type: 2}
+  requiredFlagToStart: 
+  flagToSetOnComplete: 

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d955009dc95d3c4f97ff5ac8e135c71, type: 3}
+  m_Name: WitnessFoundRelic
+  m_EditorClassIdentifier: 
+  speakerName: "Le T\xE9moin"
+  dialogueText: "Une relique\u2026 Vous portez d\xE9sormais en vous un fragment de
+    l'ancien monde. Ces artefacts sont des fragments de la v\xE9rit\xE9 qui cimente
+    ce cycle."
+  requiredFlags: []
+  forbiddenFlags:
+  - loop_aware
+  flagsToAddOnVisit: []
+  flagsToRemoveOnVisit: []
+  choices: []
+  nextNode: {fileID: 0}
