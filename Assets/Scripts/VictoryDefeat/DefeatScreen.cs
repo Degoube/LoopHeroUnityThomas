@@ -69,9 +69,18 @@ public class DefeatScreen : MonoBehaviour
 
     private void ShowDefeatScreen()
     {
+        Debug.Log("<color=red>████████████████████████████████████████</color>");
+        Debug.Log("<color=red>████   DEFEAT SCREEN DISPLAYING!   ████</color>");
+        Debug.Log("<color=red>████████████████████████████████████████</color>");
+
         if (defeatPanel != null)
         {
             defeatPanel.SetActive(true);
+            Debug.Log("<color=red>Defeat panel activated successfully</color>");
+        }
+        else
+        {
+            Debug.LogError("<color=red>Defeat panel is NULL!</color>");
         }
 
         UpdateDefeatText();

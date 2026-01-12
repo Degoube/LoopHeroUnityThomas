@@ -69,9 +69,18 @@ public class VictoryScreen : MonoBehaviour
 
     private void ShowVictoryScreen()
     {
+        Debug.Log("<color=lime>████████████████████████████████████████</color>");
+        Debug.Log("<color=lime>████  VICTORY SCREEN DISPLAYING!  ████</color>");
+        Debug.Log("<color=lime>████████████████████████████████████████</color>");
+
         if (victoryPanel != null)
         {
             victoryPanel.SetActive(true);
+            Debug.Log("<color=lime>Victory panel activated successfully</color>");
+        }
+        else
+        {
+            Debug.LogError("<color=red>Victory panel is NULL!</color>");
         }
 
         UpdateVictoryText();
