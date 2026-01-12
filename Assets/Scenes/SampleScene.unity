@@ -1377,7 +1377,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 313582178}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64c0416cb558b9f458dd104eb8f34523, type: 3}
   m_Name: 
@@ -3824,6 +3824,87 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 925165050}
   m_CullTransparentMesh: 1
+--- !u!1 &1002408727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1002408730}
+  - component: {fileID: 1002408729}
+  - component: {fileID: 1002408728}
+  m_Layer: 0
+  m_Name: WinLoseManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1002408728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002408727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c0416cb558b9f458dd104eb8f34523, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defeatPanel: {fileID: 313582178}
+  defeatTitleText: {fileID: 1165350449}
+  defeatMessageText: {fileID: 176748692}
+  reasonText: {fileID: 2028282237}
+  restartButton: {fileID: 589137398}
+  quitButton: {fileID: 862914808}
+  canvasGroup: {fileID: 313582181}
+  fadeInDuration: 1
+  defeatMusic: {fileID: 0}
+  defeatSound: {fileID: 0}
+  defeatTitle: DEFEAT
+  resourcesDepletedMessage: Your resources have been depleted...
+--- !u!114 &1002408729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002408727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c6afc931396b4742a351de05c00c8e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  victoryPanel: {fileID: 2043278203}
+  victoryTitleText: {fileID: 718696490}
+  victoryMessageText: {fileID: 149631861}
+  statsText: {fileID: 230888149}
+  restartButton: {fileID: 498595096}
+  quitButton: {fileID: 874427822}
+  canvasGroup: {fileID: 2043278206}
+  fadeInDuration: 1
+  victoryMusic: {fileID: 0}
+  victorySound: {fileID: 0}
+  victoryTitle: 'Victoire ! '
+  victoryMessage: 
+--- !u!4 &1002408730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002408727}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 734.5, y: 359.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1049086233
 GameObject:
   m_ObjectHideFlags: 0
@@ -6498,7 +6579,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2043278203}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c6afc931396b4742a351de05c00c8e6, type: 3}
   m_Name: 
@@ -7000,3 +7081,4 @@ SceneRoots:
   - {fileID: 1859270287}
   - {fileID: 2206137182740691223}
   - {fileID: 1460105295596992974}
+  - {fileID: 1002408730}
