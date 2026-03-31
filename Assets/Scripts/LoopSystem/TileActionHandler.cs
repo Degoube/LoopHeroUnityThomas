@@ -28,22 +28,32 @@ public class TileActionHandler : MonoBehaviour
 
     [Header("Combat Tile")]
     public GameObject[] enemyPrefabs;
+    private const int CombatResourceLoss = 15;
 
     [Header("Altar Tile")]
     public int altarHealAmount = 50;
-    public int altarCost = 20;
     public DialogueData altarDialogue;
 
     [Header("Relic Tile")]
     public string[] possibleRelics;
     public DialogueData relicDialogue;
+    private const int RelicResourceValue = 50;
 
     private void Start()
     {
-        BoardTile[] tiles = FindObjectsByType<BoardTile>(FindObjectsSortMode.None);
-        foreach (BoardTile tile in tiles)
+        // Subscribe via BoardManager to avoid missing tiles created after this Start
+        if (BoardManager.Instance == null)
         {
-            tile.OnTileActivated += HandleTileActivation;
+            Debug.LogWarning("TileActionHandler: BoardManager not found.");
+            return;
+        }
+
+        int total = BoardManager.Instance.TotalTiles;
+        for (int i = 0; i < total; i++)
+        {
+            BoardTile tile = BoardManager.Instance.GetTileByPathIndex(i);
+            if (tile != null)
+                tile.OnTileActivated += HandleTileActivation;
         }
     }
 
@@ -53,49 +63,50 @@ public class TileActionHandler : MonoBehaviour
 
         switch (tile.tileData.tileType)
         {
-            case TileType.Witness:
-                ExecuteWitnessAction(activator, tile);
-                break;
-            case TileType.Ruins:
-                ExecuteRuinsAction(activator, tile);
-                break;
-            case TileType.Combat:
-                ExecuteCombatAction(activator, tile);
-                break;
-            case TileType.Altar:
-                ExecuteAltarAction(activator, tile);
-                break;
-            case TileType.Relic:
-                ExecuteRelicAction(activator, tile);
-                break;
-            case TileType.Empty:
-                ExecuteEmptyAction(activator, tile);
-                break;
+            case TileType.Witness: ExecuteWitnessAction(activator, tile); break;
+            case TileType.Ruins:   ExecuteRuinsAction(activator, tile);   break;
+            case TileType.Combat:  ExecuteCombatAction(activator, tile);  break;
+            case TileType.Altar:   ExecuteAltarAction(activator, tile);   break;
+            case TileType.Relic:   ExecuteRelicAction(activator, tile);   break;
+            case TileType.Empty:   ExecuteEmptyAction(activator, tile);   break;
         }
+
+        // After the tile's own action, launch mini-game if configured
+        TryLaunchMiniGame(tile);
     }
+
+    /// <summary>
+    /// Launches the mini-game assigned to this tile if triggersMiniGame is true.
+    /// MiniGameManager handles pause and resume of the loop.
+    /// </summary>
+    private static void TryLaunchMiniGame(BoardTile tile)
+    {
+        if (tile.tileData == null
+            || !tile.tileData.triggersMiniGame
+            || tile.tileData.miniGamePrefab == null)
+            return;
+
+        if (MiniGameManager.Instance == null)
+        {
+            Debug.LogWarning("TileActionHandler: TryLaunchMiniGame called but MiniGameManager is missing in the scene.");
+            return;
+        }
+
+        MiniGameManager.Instance.LaunchMiniGame(tile.tileData.miniGamePrefab, tile);
+    }
+
+    // ── Witness ──────────────────────────────────────────────────────────────
 
     private void ExecuteWitnessAction(GameObject activator, BoardTile tile)
     {
-        Debug.Log("Witness Tile: Starting witness dialogue");
+        TileNameDisplay.Instance?.ShowTileName("Le Témoin");
 
-        if (TileNameDisplay.Instance != null)
-        {
-            TileNameDisplay.Instance.ShowTileName("Le Témoin");
-        }
+        DialogueData dialogue = GetAppropriateWitnessDialogue();
 
-        DialogueData dialogueToUse = GetAppropriateWitnessDialogue();
-
-        if (DialogueManager.Instance != null && dialogueToUse != null)
-        {
-            DialogueManager.Instance.StartDialogue(dialogueToUse);
-        }
+        if (DialogueManager.Instance != null && dialogue != null)
+            DialogueManager.Instance.StartDialogue(dialogue);
         else
-        {
-            if (DialogueManager.Instance == null)
-                Debug.LogWarning("DialogueManager.Instance is null");
-            if (dialogueToUse == null)
-                Debug.LogWarning("No appropriate witness dialogue found");
-        }
+            Debug.LogWarning("ExecuteWitnessAction: DialogueManager or dialogue is null.");
 
         onWitnessTile?.Invoke(activator, tile);
     }
@@ -105,232 +116,129 @@ public class TileActionHandler : MonoBehaviour
         if (GameManager.Instance == null)
             return witnessFirstDialogue;
 
-        bool hasAllQuestFlags = GameManager.Instance.HasFlag("visited_ruins") 
-                              && GameManager.Instance.HasFlag("activated_altar") 
-                              && GameManager.Instance.HasFlag("found_relic");
-        
-        bool hasMetWitness = GameManager.Instance.HasFlag("met_witness");
-
-        if (GameManager.Instance.HasFlag("loop_aware") && witnessFinalDialogue != null)
-        {
-            Debug.Log("Witness dialogue: FINAL (loop_aware flag present)");
+        if (GameManager.Instance.HasFlag(NarrativeFlags.LoopAware) && witnessFinalDialogue != null)
             return witnessFinalDialogue;
-        }
-        else if (hasAllQuestFlags && witnessReturningDialogue != null)
-        {
-            Debug.Log("Witness dialogue: RETURNING (all 3 quest flags obtained)");
+
+        bool hasAllQuestFlags = GameManager.Instance.HasFlag(NarrativeFlags.VisitedRuins)
+                             && GameManager.Instance.HasFlag(NarrativeFlags.ActivatedAltar)
+                             && GameManager.Instance.HasFlag(NarrativeFlags.FoundRelic);
+
+        if (hasAllQuestFlags && witnessReturningDialogue != null)
             return witnessReturningDialogue;
-        }
-        else if (hasMetWitness && witnessIncompleteDialogue != null)
-        {
-            Debug.Log("Witness dialogue: INCOMPLETE (met witness but missing quest flags)");
+
+        if (GameManager.Instance.HasFlag(NarrativeFlags.MetWitness) && witnessIncompleteDialogue != null)
             return witnessIncompleteDialogue;
-        }
-        else
-        {
-            Debug.Log("Witness dialogue: FIRST");
-            return witnessFirstDialogue;
-        }
+
+        return witnessFirstDialogue;
     }
+
+    // ── Ruins ─────────────────────────────────────────────────────────────────
 
     private void ExecuteRuinsAction(GameObject activator, BoardTile tile)
     {
-        if (TileNameDisplay.Instance != null)
-        {
-            TileNameDisplay.Instance.ShowTileName("Ruines Anciennes");
-        }
+        TileNameDisplay.Instance?.ShowTileName("Ruines Anciennes");
 
         int goldFound = UnityEngine.Random.Range(ruinsGoldMin, ruinsGoldMax + 1);
-        Debug.Log($"Ruins Tile: Found {goldFound} gold");
+        ResourceManager.Instance?.AddResources(goldFound);
 
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.AddResources(goldFound);
-        }
-
-        bool isFirstVisit = GameManager.Instance != null && !GameManager.Instance.HasFlag("visited_ruins");
-        
-        if (GameManager.Instance != null && isFirstVisit)
-        {
-            GameManager.Instance.AddFlag("visited_ruins");
-            Debug.Log("Flag set: visited_ruins");
-            CheckForDialogueTrigger();
-        }
-
-        if (isFirstVisit && ruinsDialogue != null && DialogueManager.Instance != null)
-        {
-            Debug.Log("Starting Ruins dialogue (first visit only)");
-            DialogueManager.Instance.StartDialogue(ruinsDialogue);
-        }
-        else if (!isFirstVisit)
-        {
-            Debug.Log("Ruins already visited - dialogue skipped");
-        }
-
+        TryFirstVisit(NarrativeFlags.VisitedRuins, ruinsDialogue);
         tile.MarkAsVisited();
 
         onRuinsTile?.Invoke(activator, tile);
     }
 
+    // ── Combat ────────────────────────────────────────────────────────────────
+
     private void ExecuteCombatAction(GameObject activator, BoardTile tile)
     {
-        Debug.Log("Combat Tile: Enemy encounter");
-
-        if (TileNameDisplay.Instance != null)
-        {
-            TileNameDisplay.Instance.ShowTileName("Combat !");
-        }
-
-        int resourceLoss = 15;
-        
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.RemoveResources(resourceLoss);
-        }
+        TileNameDisplay.Instance?.ShowTileName("Combat !");
+        ResourceManager.Instance?.RemoveResources(CombatResourceLoss);
 
         if (GameManager.Instance != null)
         {
             int combatCount = 0;
             while (GameManager.Instance.HasFlag($"combat_{combatCount}"))
-            {
                 combatCount++;
-            }
-            
+
             GameManager.Instance.AddFlag($"combat_{combatCount}");
-            Debug.Log($"Flag set: combat_{combatCount}");
         }
 
         if (enemyPrefabs != null && enemyPrefabs.Length > 0)
         {
-            int randomIndex = UnityEngine.Random.Range(0, enemyPrefabs.Length);
-            GameObject enemy = enemyPrefabs[randomIndex];
-
-            if (enemy != null)
-            {
-                Instantiate(enemy, tile.transform.position + Vector3.up, Quaternion.identity);
-            }
+            int idx = UnityEngine.Random.Range(0, enemyPrefabs.Length);
+            if (enemyPrefabs[idx] != null)
+                Instantiate(enemyPrefabs[idx], tile.transform.position + Vector3.up, Quaternion.identity);
         }
 
         onCombatTile?.Invoke(activator, tile);
     }
 
+    // ── Altar ─────────────────────────────────────────────────────────────────
+
     private void ExecuteAltarAction(GameObject activator, BoardTile tile)
     {
-        Debug.Log("Altar Tile: Sacred power activated");
+        TileNameDisplay.Instance?.ShowTileName("Autel Sacré");
+        ResourceManager.Instance?.AddResources(altarHealAmount);
 
-        if (TileNameDisplay.Instance != null)
-        {
-            TileNameDisplay.Instance.ShowTileName("Autel Sacré");
-        }
-
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.AddResources(altarHealAmount);
-        }
-
-        bool isFirstVisit = GameManager.Instance != null && !GameManager.Instance.HasFlag("activated_altar");
-        
-        if (GameManager.Instance != null && isFirstVisit)
-        {
-            GameManager.Instance.AddFlag("activated_altar");
-            Debug.Log("Flag set: activated_altar");
-            CheckForDialogueTrigger();
-        }
-
-        if (isFirstVisit && altarDialogue != null && DialogueManager.Instance != null)
-        {
-            Debug.Log("Starting Altar dialogue (first visit only)");
-            DialogueManager.Instance.StartDialogue(altarDialogue);
-        }
-        else if (!isFirstVisit)
-        {
-            Debug.Log("Altar already visited - dialogue skipped");
-        }
+        TryFirstVisit(NarrativeFlags.ActivatedAltar, altarDialogue);
 
         onAltarTile?.Invoke(activator, tile);
     }
 
+    // ── Relic ─────────────────────────────────────────────────────────────────
+
     private void ExecuteRelicAction(GameObject activator, BoardTile tile)
     {
-        if (TileNameDisplay.Instance != null)
-        {
-            TileNameDisplay.Instance.ShowTileName("Relique Ancienne");
-        }
+        TileNameDisplay.Instance?.ShowTileName("Relique Ancienne");
 
-        string relicName = "Ancient Relic";
-        
-        if (possibleRelics != null && possibleRelics.Length > 0)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, possibleRelics.Length);
-            relicName = possibleRelics[randomIndex];
-        }
-        
-        Debug.Log($"Relic Tile: Obtained {relicName}");
+        string relicName = possibleRelics != null && possibleRelics.Length > 0
+            ? possibleRelics[UnityEngine.Random.Range(0, possibleRelics.Length)]
+            : "Ancient Relic";
 
-        int relicValue = 50;
+        ResourceManager.Instance?.AddResources(RelicResourceValue);
+        GameManager.Instance?.AddFlag($"relic_{relicName}");
 
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.AddResources(relicValue);
-        }
-
-        bool isFirstVisit = GameManager.Instance != null && !GameManager.Instance.HasFlag("found_relic");
-        
-        if (GameManager.Instance != null)
-        {
-            if (isFirstVisit)
-            {
-                GameManager.Instance.AddFlag("found_relic");
-                Debug.Log("Flag set: found_relic");
-                CheckForDialogueTrigger();
-            }
-            
-            GameManager.Instance.AddFlag($"relic_{relicName}");
-            Debug.Log($"Flag set: relic_{relicName}");
-        }
-
-        if (isFirstVisit && relicDialogue != null && DialogueManager.Instance != null)
-        {
-            Debug.Log("Starting Relic dialogue (first visit only)");
-            DialogueManager.Instance.StartDialogue(relicDialogue);
-        }
-        else if (!isFirstVisit)
-        {
-            Debug.Log("Relic already found - dialogue skipped");
-        }
-
+        TryFirstVisit(NarrativeFlags.FoundRelic, relicDialogue);
         tile.MarkAsVisited();
 
         onRelicTile?.Invoke(activator, tile);
     }
 
-    private void CheckForDialogueTrigger()
-    {
-        if (GameManager.Instance == null || DialogueManager.Instance == null)
-            return;
-
-        bool hasRuins = GameManager.Instance.HasFlag("visited_ruins");
-        bool hasAltar = GameManager.Instance.HasFlag("activated_altar");
-        bool hasRelic = GameManager.Instance.HasFlag("found_relic");
-
-        if (hasRuins && hasAltar && hasRelic && !GameManager.Instance.HasFlag("loop_aware"))
-        {
-            Debug.Log("All quest flags obtained! Witness dialogue will progress on next visit.");
-        }
-    }
+    // ── Empty ─────────────────────────────────────────────────────────────────
 
     private void ExecuteEmptyAction(GameObject activator, BoardTile tile)
     {
-        Debug.Log("Empty Tile: Nothing happens");
         onEmptyTile?.Invoke(activator, tile);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Sets the given flag on first visit and starts the associated dialogue.
+    /// Does nothing on subsequent visits.
+    /// </summary>
+    private void TryFirstVisit(string flag, DialogueData dialogue)
+    {
+        if (GameManager.Instance == null || GameManager.Instance.HasFlag(flag))
+            return;
+
+        GameManager.Instance.AddFlag(flag);
+
+        if (dialogue != null && DialogueManager.Instance != null)
+            DialogueManager.Instance.StartDialogue(dialogue);
     }
 
     private void OnDestroy()
     {
-        BoardTile[] tiles = FindObjectsByType<BoardTile>(FindObjectsSortMode.None);
-        foreach (BoardTile tile in tiles)
+        if (BoardManager.Instance == null)
+            return;
+
+        int total = BoardManager.Instance.TotalTiles;
+        for (int i = 0; i < total; i++)
         {
-            tile.OnTileActivated -= HandleTileActivation;
+            BoardTile tile = BoardManager.Instance.GetTileByPathIndex(i);
+            if (tile != null)
+                tile.OnTileActivated -= HandleTileActivation;
         }
     }
 }

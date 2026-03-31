@@ -5,6 +5,7 @@ public enum LoopState
     SelectingPath,
     Moving,
     TileAction,
+    MiniGame,
     EndingTurn,
     GameOver
 }

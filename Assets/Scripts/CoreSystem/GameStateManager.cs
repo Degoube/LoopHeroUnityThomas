@@ -7,7 +7,7 @@ public class GameStateManager : MonoBehaviour
     public static GameStateManager Instance { get; private set; }
 
     [Header("Win Condition")]
-    public string victoryFlag = "truth_done";
+    public string victoryFlag = NarrativeFlags.Victory;
 
     [Header("Lose Conditions")]
     public bool checkResourceDepletion = true;
@@ -15,7 +15,6 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Settings")]
     public bool checkConditionsEveryTurn = true;
-    public float checkInterval = 1f;
 
     public GameState CurrentGameState { get; private set; }
 
@@ -23,7 +22,9 @@ public class GameStateManager : MonoBehaviour
     public event Action OnDefeat;
     public event Action<GameState> OnGameStateChanged;
 
-    private float checkTimer;
+    // Guard: do not evaluate win/lose until the player has actually taken a turn.
+    // Prevents false defeat triggers during scene initialisation order issues.
+    private bool hasGameStarted;
 
     private void Awake()
     {
@@ -39,40 +40,30 @@ public class GameStateManager : MonoBehaviour
     private void Start()
     {
         CurrentGameState = GameState.Playing;
+        hasGameStarted = false;
 
         if (ResourceManager.Instance != null)
-        {
             ResourceManager.Instance.OnResourcesDepleted += HandleResourcesDepleted;
-        }
 
         if (PlayerLoopController.Instance != null)
         {
-            PlayerLoopController.Instance.OnTurnEnded += HandleTurnEnded;
+            PlayerLoopController.Instance.OnTurnStarted += HandleTurnStarted;
+            PlayerLoopController.Instance.OnTurnEnded   += HandleTurnEnded;
         }
 
         if (DialogueManager.Instance != null)
-        {
             DialogueManager.Instance.OnDialogueEnded += HandleDialogueEnded;
-        }
     }
 
-    private void Update()
+    // First real turn marks the game as started — safe to check conditions from here on.
+    private void HandleTurnStarted(int turn)
     {
-        if (CurrentGameState != GameState.Playing)
-            return;
-
-        checkTimer += Time.deltaTime;
-        if (checkTimer >= checkInterval)
-        {
-            checkTimer = 0f;
-            CheckWinConditions();
-            CheckLoseConditions();
-        }
+        hasGameStarted = true;
     }
 
     private void HandleTurnEnded(int turn)
     {
-        if (!checkConditionsEveryTurn)
+        if (!hasGameStarted || !checkConditionsEveryTurn)
             return;
 
         CheckWinConditions();
@@ -81,35 +72,29 @@ public class GameStateManager : MonoBehaviour
 
     private void HandleDialogueEnded()
     {
-        Debug.Log("Dialogue ended - Checking win/lose conditions immediately");
+        if (!hasGameStarted)
+            return;
+
         CheckWinConditions();
         CheckLoseConditions();
     }
 
     private void HandleResourcesDepleted()
     {
+        if (!hasGameStarted)
+            return;
+
         if (checkResourceDepletion)
-        {
             TriggerDefeat();
-        }
     }
 
     private void CheckWinConditions()
     {
         if (CurrentGameState != GameState.Playing)
-        {
-            Debug.Log($"<color=orange>[WIN CHECK SKIPPED]</color> CurrentGameState = {CurrentGameState}");
             return;
-        }
 
-        bool hasTruthDoneFlag = GameManager.Instance != null && GameManager.Instance.HasFlag(victoryFlag);
-        Debug.Log($"<color=yellow>[WIN CHECK]</color> Checking for flag '{victoryFlag}': {(hasTruthDoneFlag ? "FOUND" : "NOT FOUND")}");
-
-        if (hasTruthDoneFlag)
-        {
-            Debug.Log($"<color=yellow>[WIN CONDITION MET]</color> Flag '{victoryFlag}' detected!");
+        if (GameManager.Instance != null && GameManager.Instance.HasFlag(victoryFlag))
             TriggerVictory();
-        }
     }
 
     private void CheckLoseConditions()
@@ -117,16 +102,15 @@ public class GameStateManager : MonoBehaviour
         if (CurrentGameState != GameState.Playing)
             return;
 
-        if (checkResourceDepletion && ResourceManager.Instance != null)
+        if (checkResourceDepletion
+            && ResourceManager.Instance != null
+            && ResourceManager.Instance.CurrentResources < minResourcesThreshold)
         {
-            if (ResourceManager.Instance.CurrentResources < minResourcesThreshold)
-            {
-                Debug.Log($"<color=red>[DEFEAT CONDITION MET]</color> Ressources ({ResourceManager.Instance.CurrentResources}) < seuil ({minResourcesThreshold})");
-                TriggerDefeat();
-            }
+            TriggerDefeat();
         }
     }
 
+    /// <summary>Triggers the victory state and fires OnVictory.</summary>
     public void TriggerVictory()
     {
         if (CurrentGameState != GameState.Playing)
@@ -136,17 +120,13 @@ public class GameStateManager : MonoBehaviour
         ChangeGameState(GameState.Victory);
         OnVictory?.Invoke();
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.AddFlag("game_won");
-        }
+        GameManager.Instance?.AddFlag(NarrativeFlags.GameWon);
 
         if (PlayerLoopController.Instance != null)
-        {
             PlayerLoopController.Instance.enabled = false;
-        }
     }
 
+    /// <summary>Triggers the defeat state and fires OnDefeat.</summary>
     public void TriggerDefeat()
     {
         if (CurrentGameState != GameState.Playing)
@@ -156,15 +136,10 @@ public class GameStateManager : MonoBehaviour
         ChangeGameState(GameState.Defeat);
         OnDefeat?.Invoke();
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.AddFlag("game_lost");
-        }
+        GameManager.Instance?.AddFlag(NarrativeFlags.GameLost);
 
         if (PlayerLoopController.Instance != null)
-        {
             PlayerLoopController.Instance.enabled = false;
-        }
     }
 
     private void ChangeGameState(GameState newState)
@@ -176,26 +151,17 @@ public class GameStateManager : MonoBehaviour
         OnGameStateChanged?.Invoke(newState);
     }
 
+    /// <summary>Resets resources and reloads the active scene.</summary>
     public void RestartGame()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ClearAllFlags();
-        }
-
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.ResetResources();
-        }
-
+        GameManager.Instance?.ResetGame();
+        ResourceManager.Instance?.ResetResources();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void QuitGame()
     {
-        Debug.Log("Quitting game...");
         Application.Quit();
-
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
@@ -204,18 +170,15 @@ public class GameStateManager : MonoBehaviour
     private void OnDestroy()
     {
         if (ResourceManager.Instance != null)
-        {
             ResourceManager.Instance.OnResourcesDepleted -= HandleResourcesDepleted;
-        }
 
         if (PlayerLoopController.Instance != null)
         {
-            PlayerLoopController.Instance.OnTurnEnded -= HandleTurnEnded;
+            PlayerLoopController.Instance.OnTurnStarted -= HandleTurnStarted;
+            PlayerLoopController.Instance.OnTurnEnded   -= HandleTurnEnded;
         }
 
         if (DialogueManager.Instance != null)
-        {
             DialogueManager.Instance.OnDialogueEnded -= HandleDialogueEnded;
-        }
     }
 }

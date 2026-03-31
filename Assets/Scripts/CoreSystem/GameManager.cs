@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,8 +11,7 @@ public class GameManager : MonoBehaviour
     public DialogueData firstDialogue;
     public float delayBeforeFirstDialogue = 1f;
 
-    private HashSet<string> narrativeFlags = new HashSet<string>();
-    private string saveFilePath;
+    private readonly HashSet<string> narrativeFlags = new HashSet<string>();
     private bool hasShownFirstDialogue = false;
 
     private void Awake()
@@ -25,38 +24,30 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        saveFilePath = Path.Combine(Application.persistentDataPath, "narrative_flags.json");
-        narrativeFlags.Clear();
-        Debug.Log("GameManager initialized with fresh flags (no persistence)");
     }
 
     private void Start()
     {
-        if (firstDialogue != null && !HasFlag("game_started"))
-        {
+        if (firstDialogue != null && !HasFlag(NarrativeFlags.GameStarted))
             StartCoroutine(ShowFirstDialogue());
-        }
     }
 
     private IEnumerator ShowFirstDialogue()
     {
         yield return new WaitForSeconds(delayBeforeFirstDialogue);
-        
+
         while (DialogueManager.Instance == null)
-        {
             yield return null;
-        }
-        
+
         if (!hasShownFirstDialogue)
         {
             hasShownFirstDialogue = true;
-            AddFlag("game_started");
+            AddFlag(NarrativeFlags.GameStarted);
             DialogueManager.Instance.StartDialogue(firstDialogue);
-            Debug.Log("First dialogue started");
         }
     }
 
+    /// <summary>Adds a narrative flag. No-op if the flag already exists or is empty.</summary>
     public void AddFlag(string flag)
     {
         if (string.IsNullOrEmpty(flag))
@@ -65,78 +56,29 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        bool isNew = narrativeFlags.Add(flag);
-        if (isNew)
-        {
+        if (narrativeFlags.Add(flag))
             Debug.Log($"<color=green>[FLAG ADDED]</color> {flag}");
-        }
     }
 
+    /// <summary>Removes a narrative flag.</summary>
     public void RemoveFlag(string flag)
     {
         narrativeFlags.Remove(flag);
     }
 
+    /// <summary>Returns true if the flag has been set.</summary>
     public bool HasFlag(string flag)
     {
         return narrativeFlags.Contains(flag);
     }
 
-    public int GetFlagCount()
-    {
-        return narrativeFlags.Count;
-    }
+    public int GetFlagCount() => narrativeFlags.Count;
 
-    public void SaveFlags()
-    {
-        NarrativeFlagsData data = new NarrativeFlagsData
-        {
-            flags = new List<string>(narrativeFlags)
-        };
-
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(saveFilePath, json);
-        Debug.Log($"Flags saved to {saveFilePath}");
-    }
-
-    public void LoadFlags()
-    {
-        if (!File.Exists(saveFilePath))
-        {
-            Debug.Log("No save file found, starting with empty flags");
-            return;
-        }
-
-        string json = File.ReadAllText(saveFilePath);
-        NarrativeFlagsData data = JsonUtility.FromJson<NarrativeFlagsData>(json);
-        narrativeFlags = new HashSet<string>(data.flags);
-        Debug.Log($"Loaded {narrativeFlags.Count} flags from {saveFilePath}");
-    }
-
-    public void ClearAllFlags()
+    /// <summary>Clears all flags and reloads the active scene.</summary>
+    public void ResetGame()
     {
         narrativeFlags.Clear();
         hasShownFirstDialogue = false;
-        SaveFlags();
-        Debug.Log("All flags cleared and saved");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-    
-    public void ResetGame()
-    {
-        ClearAllFlags();
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
-        );
-    }
-
-    private void OnApplicationQuit()
-    {
-        Debug.Log("Application quitting - flags will NOT be saved (fresh start on next launch)");
-    }
-}
-
-[System.Serializable]
-public class NarrativeFlagsData
-{
-    public List<string> flags;
 }

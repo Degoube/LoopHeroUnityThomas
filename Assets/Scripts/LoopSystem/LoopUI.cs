@@ -18,121 +18,101 @@ public class LoopUI : MonoBehaviour
 
     private void Start()
     {
-        if (PlayerLoopController.Instance != null)
+        PlayerLoopController loop = PlayerLoopController.Instance;
+        if (loop != null)
         {
-            PlayerLoopController.Instance.OnStateChanged += UpdateStateDisplay;
-            PlayerLoopController.Instance.OnTurnStarted += UpdateTurnDisplay;
-            PlayerLoopController.Instance.OnLoopCompleted += UpdateLoopDisplay;
-        }
+            loop.OnStateChanged       += UpdateStateDisplay;
+            loop.OnStateChanged       += _ => UpdateButtonState();
+            loop.OnTurnStarted        += UpdateTurnDisplay;
+            loop.OnLoopCompleted      += UpdateLoopDisplay;
+            loop.OnMovementCompleted  += UpdateMovesDisplay;
 
-        if (PlayerLoopController.Instance.diceRoller != null)
-        {
-            PlayerLoopController.Instance.diceRoller.OnRollComplete += UpdateDiceDisplay;
+            if (loop.diceRoller != null)
+            {
+                loop.diceRoller.OnRollComplete += UpdateDiceDisplay;
+                loop.diceRoller.OnRollComplete += _ => UpdateMovesDisplay();
+            }
         }
 
         if (rollButton != null)
-        {
             rollButton.onClick.AddListener(OnRollButtonClicked);
-        }
 
         UpdateAllDisplays();
     }
 
-    private void Update()
-    {
-        UpdateMovesDisplay();
-        UpdateButtonState();
-    }
-
     private void UpdateAllDisplays()
     {
-        if (PlayerLoopController.Instance == null)
+        PlayerLoopController loop = PlayerLoopController.Instance;
+        if (loop == null)
             return;
 
-        UpdateTurnDisplay(PlayerLoopController.Instance.CurrentTurn);
-        UpdateLoopDisplay(PlayerLoopController.Instance.TotalLoops);
-        UpdateStateDisplay(PlayerLoopController.Instance.CurrentState);
+        UpdateTurnDisplay(loop.CurrentTurn);
+        UpdateLoopDisplay(loop.TotalLoops);
+        UpdateStateDisplay(loop.CurrentState);
+        UpdateMovesDisplay();
+        UpdateButtonState();
     }
 
     private void UpdateTurnDisplay(int turn)
     {
         if (turnText != null)
-        {
             turnText.text = $"Turn: {turn}";
-        }
     }
 
     private void UpdateLoopDisplay(int loop)
     {
         if (loopText != null)
-        {
             loopText.text = $"Loop: {loop}";
-        }
     }
 
     private void UpdateStateDisplay(LoopState state)
     {
         if (stateText != null)
-        {
             stateText.text = $"State: {state}";
-        }
     }
 
     private void UpdateDiceDisplay(int result)
     {
         if (diceResultText != null)
-        {
             diceResultText.text = $"Rolled: {result}";
-        }
 
         if (diceImage != null && diceFaces != null && result > 0 && result <= diceFaces.Length)
-        {
             diceImage.sprite = diceFaces[result - 1];
-        }
     }
 
     private void UpdateMovesDisplay()
     {
         if (movesRemainingText != null && PlayerLoopController.Instance != null)
-        {
-            int remaining = PlayerLoopController.Instance.GetRemainingMoves();
-            movesRemainingText.text = $"Moves: {remaining}";
-        }
+            movesRemainingText.text = $"Moves: {PlayerLoopController.Instance.GetRemainingMoves()}";
     }
 
     private void UpdateButtonState()
     {
         if (rollButton != null && PlayerLoopController.Instance != null)
-        {
             rollButton.interactable = PlayerLoopController.Instance.CanRollDice();
-        }
     }
 
     private void OnRollButtonClicked()
     {
         if (PlayerLoopController.Instance != null && PlayerLoopController.Instance.CanRollDice())
-        {
             PlayerLoopController.Instance.StartTurn();
-        }
     }
 
     private void OnDestroy()
     {
-        if (PlayerLoopController.Instance != null)
+        PlayerLoopController loop = PlayerLoopController.Instance;
+        if (loop != null)
         {
-            PlayerLoopController.Instance.OnStateChanged -= UpdateStateDisplay;
-            PlayerLoopController.Instance.OnTurnStarted -= UpdateTurnDisplay;
-            PlayerLoopController.Instance.OnLoopCompleted -= UpdateLoopDisplay;
+            loop.OnStateChanged      -= UpdateStateDisplay;
+            loop.OnTurnStarted       -= UpdateTurnDisplay;
+            loop.OnLoopCompleted     -= UpdateLoopDisplay;
+            loop.OnMovementCompleted -= UpdateMovesDisplay;
 
-            if (PlayerLoopController.Instance.diceRoller != null)
-            {
-                PlayerLoopController.Instance.diceRoller.OnRollComplete -= UpdateDiceDisplay;
-            }
+            if (loop.diceRoller != null)
+                loop.diceRoller.OnRollComplete -= UpdateDiceDisplay;
         }
 
         if (rollButton != null)
-        {
             rollButton.onClick.RemoveListener(OnRollButtonClicked);
-        }
     }
 }

@@ -21,6 +21,12 @@ public class TileData : ScriptableObject
     public bool triggersOnEnter = true;
     public bool canBeRevisited = true;
 
+    [Header("Mini-Game")]
+    [Tooltip("If true, landing on this tile launches the assigned mini-game prefab.")]
+    public bool triggersMiniGame = false;
+    [Tooltip("Prefab must have a component that implements IMiniGame.")]
+    public GameObject miniGamePrefab;
+
     [Header("Rewards")]
     public int goldReward;
     public int experienceReward;

@@ -291,56 +291,39 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
-        if (IsDialogueActive())
+        if (!IsDialogueActive())
+            return;
+
+        if (WasPressedThisFrame(Keyboard.current?.escapeKey))
         {
-            // Support pour ESC (force close) - Compatible ancien et nouveau Input System
-            bool escPressed = false;
-            if (Keyboard.current != null)
-            {
-                escPressed = Keyboard.current.escapeKey.wasPressedThisFrame;
-            }
-            else
-            {
-                escPressed = Input.GetKeyDown(KeyCode.Escape);
-            }
+            Debug.LogWarning("<color=red>ESC pressed - Force closing dialogue</color>");
+            EndDialogue();
+            return;
+        }
 
-            if (escPressed)
+        if (WasPressedThisFrame(Keyboard.current?.spaceKey))
+        {
+            if (isTyping && canSkipTypewriter)
             {
-                Debug.LogWarning("<color=red>ESC pressed - Force closing dialogue</color>");
-                EndDialogue();
-                return;
+                SkipTypewriter();
             }
+            else if (!isTyping)
+            {
+                List<DialogueChoice> availableChoices = currentNode?.GetAvailableChoices();
+                bool noChoicesAndNoNext = (availableChoices == null || availableChoices.Count == 0)
+                                         && currentNode?.nextNode == null;
 
-            // Support pour SPACE
-            bool spacePressed = false;
-            if (Keyboard.current != null)
-            {
-                spacePressed = Keyboard.current.spaceKey.wasPressedThisFrame;
-            }
-            else
-            {
-                spacePressed = Input.GetKeyDown(KeyCode.Space);
-            }
-            
-            if (spacePressed)
-            {
-                if (isTyping && canSkipTypewriter)
+                if (noChoicesAndNoNext)
                 {
-                    SkipTypewriter();
-                }
-                else if (!isTyping)
-                {
-                    List<DialogueChoice> availableChoices = currentNode?.GetAvailableChoices();
-                    if (availableChoices == null || availableChoices.Count == 0)
-                    {
-                        if (currentNode?.nextNode == null)
-                        {
-                            Debug.Log("Player pressed SPACE - Closing dialogue");
-                            EndDialogue();
-                        }
-                    }
+                    Debug.Log("Player pressed SPACE - Closing dialogue");
+                    EndDialogue();
                 }
             }
         }
+    }
+
+    private static bool WasPressedThisFrame(UnityEngine.InputSystem.Controls.KeyControl key)
+    {
+        return key != null && key.wasPressedThisFrame;
     }
 }

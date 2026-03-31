@@ -22,6 +22,8 @@ MonoBehaviour:
   isPassable: 1
   triggersOnEnter: 1
   canBeRevisited: 1
+  triggersMiniGame: 1
+  miniGamePrefab: {fileID: 5374266914065526203, guid: 096c434b5c596504b95c60f707f79c3a, type: 3}
   goldReward: 0
   experienceReward: 0
   enterSound: {fileID: 0}

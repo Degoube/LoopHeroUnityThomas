@@ -1,2 +1,16 @@
 fileFormatVersion: 2
 guid: 6122123632a106b43b6089d5eb76b7dd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tileIcon: {instanceID: 0}
+  - tilePrefab: {fileID: 8845049165375227784, guid: 2bb1a1f5c538a034e81f22920c3d3d06, type: 3}
+  - miniGamePrefab: {fileID: 5374266914065526203, guid: 096c434b5c596504b95c60f707f79c3a, type: 3}
+  - enterSound: {instanceID: 0}
+  - actionSound: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

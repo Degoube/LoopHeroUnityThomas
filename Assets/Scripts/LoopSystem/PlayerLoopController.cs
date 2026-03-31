@@ -269,18 +269,22 @@ public class PlayerLoopController : MonoBehaviour
 
     private IEnumerator WaitForTileAction()
     {
-        Debug.Log("<color=cyan>[TILE ACTION] Waiting 1 second before checking for dialogue...</color>");
         yield return new WaitForSeconds(1f);
 
+        // Wait for any dialogue triggered by the tile
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive())
         {
-            Debug.Log("<color=cyan>[TILE ACTION] Dialogue is active - waiting for it to end...</color>");
+            Debug.Log("<color=cyan>[TILE ACTION] Waiting for dialogue to end...</color>");
             yield return new WaitUntil(() => !DialogueManager.Instance.IsDialogueActive());
-            Debug.Log("<color=cyan>[TILE ACTION] Dialogue ended - resuming game</color>");
         }
-        else
+
+        // Wait for any mini-game triggered by the tile
+        if (MiniGameManager.Instance != null && MiniGameManager.Instance.IsMiniGameActive)
         {
-            Debug.Log("<color=cyan>[TILE ACTION] No dialogue active - continuing</color>");
+            Debug.Log("<color=cyan>[TILE ACTION] Waiting for mini-game to end...</color>");
+            ChangeState(LoopState.MiniGame);
+            yield return new WaitUntil(() => !MiniGameManager.Instance.IsMiniGameActive);
+            Debug.Log("<color=cyan>[TILE ACTION] Mini-game ended — resuming turn.</color>");
         }
 
         EndTurn();
@@ -305,24 +309,14 @@ public class PlayerLoopController : MonoBehaviour
         OnLoopCompleted?.Invoke(TotalLoops);
 
         if (showDebugInfo)
-        {
             Debug.Log($"Loop {TotalLoops} completed!");
-        }
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.AddFlag($"loop_{TotalLoops}_complete");
-            GameManager.Instance.SaveFlags();
-        }
+        GameManager.Instance?.AddFlag($"loop_{TotalLoops}_complete");
 
         if (restartLoopAutomatically)
-        {
             RestartLoop();
-        }
         else
-        {
             ChangeState(LoopState.GameOver);
-        }
     }
 
     public void RestartLoop()
@@ -375,14 +369,13 @@ public class PlayerLoopController : MonoBehaviour
     private void Update()
     {
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive())
-        {
             return;
-        }
-        
+
+        if (MiniGameManager.Instance != null && MiniGameManager.Instance.IsMiniGameActive)
+            return;
+
         if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame && CanRollDice())
-        {
             StartTurn();
-        }
     }
 
     private void OnDestroy()

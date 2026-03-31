@@ -541,10 +541,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -154.46808}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &149631860
 MonoBehaviour:
@@ -698,10 +698,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -154.46808}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &176748691
 MonoBehaviour:
@@ -1205,10 +1205,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -285}
+  m_SizeDelta: {x: 800, y: 143.61702}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &230888148
 MonoBehaviour:
@@ -1349,7 +1349,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &313582179
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1382,18 +1382,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64c0416cb558b9f458dd104eb8f34523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defeatPanel: {fileID: 313582178}
+  panel: {fileID: 0}
+  canvasGroup: {fileID: 0}
+  fadeInDuration: 1
+  stingerSound: {fileID: 0}
+  loopMusic: {fileID: 0}
   defeatTitleText: {fileID: 1165350449}
   defeatMessageText: {fileID: 176748692}
   reasonText: {fileID: 2028282237}
   restartButton: {fileID: 589137398}
   quitButton: {fileID: 862914808}
-  canvasGroup: {fileID: 0}
-  fadeInDuration: 1
-  defeatMusic: {fileID: 0}
-  defeatSound: {fileID: 0}
   defeatTitle: DEFEAT
-  resourcesDepletedMessage: Your resources have been depleted...
 --- !u!225 &313582181
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2473,10 +2472,10 @@ RectTransform:
   - {fileID: 134329734}
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -483.82983}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &498595095
 MonoBehaviour:
@@ -2672,10 +2671,10 @@ RectTransform:
   - {fileID: 1674717615}
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -483.82983}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &589137397
 MonoBehaviour:
@@ -2961,10 +2960,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -47.87234}
+  m_SizeDelta: {x: 800, y: 95.74468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &718696489
 MonoBehaviour:
@@ -3383,10 +3382,10 @@ RectTransform:
   - {fileID: 925165051}
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -571.2766}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &862914807
 MonoBehaviour:
@@ -3521,10 +3520,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -405.95746}
+  m_SizeDelta: {x: 800, y: 38.297874}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &864468833
 MonoBehaviour:
@@ -3581,10 +3580,10 @@ RectTransform:
   - {fileID: 1605487830}
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -571.2766}
+  m_SizeDelta: {x: 800, y: 57.446808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &874427821
 MonoBehaviour:
@@ -3854,18 +3853,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64c0416cb558b9f458dd104eb8f34523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defeatPanel: {fileID: 313582178}
+  panel: {fileID: 313582178}
+  canvasGroup: {fileID: 313582181}
+  fadeInDuration: 1
+  stingerSound: {fileID: 0}
+  loopMusic: {fileID: 0}
   defeatTitleText: {fileID: 1165350449}
   defeatMessageText: {fileID: 176748692}
   reasonText: {fileID: 2028282237}
   restartButton: {fileID: 589137398}
   quitButton: {fileID: 862914808}
-  canvasGroup: {fileID: 313582181}
-  fadeInDuration: 1
-  defeatMusic: {fileID: 0}
-  defeatSound: {fileID: 0}
   defeatTitle: DEFEAT
-  resourcesDepletedMessage: Your resources have been depleted...
 --- !u!114 &1002408729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3878,16 +3876,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6afc931396b4742a351de05c00c8e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  victoryPanel: {fileID: 2043278203}
+  panel: {fileID: 2043278203}
+  canvasGroup: {fileID: 2043278206}
+  fadeInDuration: 1
+  stingerSound: {fileID: 0}
+  loopMusic: {fileID: 0}
   victoryTitleText: {fileID: 718696490}
   victoryMessageText: {fileID: 149631861}
   statsText: {fileID: 230888149}
   restartButton: {fileID: 498595096}
   quitButton: {fileID: 874427822}
-  canvasGroup: {fileID: 2043278206}
-  fadeInDuration: 1
-  victoryMusic: {fileID: 0}
-  victorySound: {fileID: 0}
   victoryTitle: 'Victoire ! '
   victoryMessage: 
 --- !u!4 &1002408730
@@ -4312,10 +4310,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -47.87234}
+  m_SizeDelta: {x: 800, y: 95.74468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1165350448
 MonoBehaviour:
@@ -4633,10 +4631,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812539819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -405.95746}
+  m_SizeDelta: {x: 800, y: 38.297874}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1278301460
 MonoBehaviour:
@@ -4875,7 +4873,6 @@ MonoBehaviour:
   ruinsDialogue: {fileID: 11400000, guid: 6e8376853208ec34bb21ea36365c347f, type: 2}
   enemyPrefabs: []
   altarHealAmount: 20
-  altarCost: 10
   altarDialogue: {fileID: 11400000, guid: 6bd24a3784d95774e863dde84cdaec82, type: 2}
   possibleRelics:
   - Courones
@@ -5154,6 +5151,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1605487829}
   m_CullTransparentMesh: 1
+--- !u!1 &1618454602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1618454604}
+  - component: {fileID: 1618454603}
+  m_Layer: 0
+  m_Name: MiniGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1618454603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618454602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca78fe7e517a64c47a20b57565c054b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  miniGameRoot: {fileID: 0}
+--- !u!4 &1618454604
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618454602}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1628090583
 GameObject:
   m_ObjectHideFlags: 0
@@ -6359,10 +6401,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1133507993}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 400, y: -285}
+  m_SizeDelta: {x: 800, y: 143.61702}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2028282236
 MonoBehaviour:
@@ -6531,7 +6573,6 @@ MonoBehaviour:
   checkResourceDepletion: 1
   minResourcesThreshold: 5
   checkConditionsEveryTurn: 1
-  checkInterval: 1
 --- !u!1 &2043278203
 GameObject:
   m_ObjectHideFlags: 0
@@ -6551,7 +6592,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2043278204
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6584,16 +6625,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6afc931396b4742a351de05c00c8e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  victoryPanel: {fileID: 2043278203}
+  panel: {fileID: 0}
+  canvasGroup: {fileID: 0}
+  fadeInDuration: 1
+  stingerSound: {fileID: 0}
+  loopMusic: {fileID: 0}
   victoryTitleText: {fileID: 718696490}
   victoryMessageText: {fileID: 149631861}
   statsText: {fileID: 230888149}
   restartButton: {fileID: 498595096}
   quitButton: {fileID: 874427822}
-  canvasGroup: {fileID: 0}
-  fadeInDuration: 1
-  victoryMusic: {fileID: 0}
-  victorySound: {fileID: 0}
   victoryTitle: Victoire
   victoryMessage: "Vous avez d\xE9couvert la v\xE9rit\xE9 "
 --- !u!225 &2043278206
@@ -7082,3 +7123,4 @@ SceneRoots:
   - {fileID: 2206137182740691223}
   - {fileID: 1460105295596992974}
   - {fileID: 1002408730}
+  - {fileID: 1618454604}
