@@ -366,6 +366,44 @@ public class PlayerLoopController : MonoBehaviour
         return remainingMoves;
     }
 
+    /// <summary>
+    /// Teleports the player to pathIndex and restores turn/loop counters.
+    /// Called by the save system after the board has been regenerated.
+    /// </summary>
+    public void RestoreState(int pathIndex, int turn, int loops)
+    {
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogError("[PlayerLoopController] RestoreState: BoardManager not ready.");
+            return;
+        }
+
+        BoardTile tile = BoardManager.Instance.GetTileByPathIndex(pathIndex);
+        if (tile == null)
+        {
+            Debug.LogWarning($"[PlayerLoopController] RestoreState: tile at pathIndex {pathIndex} not found. Defaulting to 0.");
+            tile = BoardManager.Instance.GetTileByPathIndex(0);
+            pathIndex = 0;
+        }
+
+        CurrentTile      = tile;
+        CurrentPathIndex = pathIndex;
+        CurrentTurn      = turn;
+        TotalLoops       = loops;
+
+        if (playerObject != null)
+        {
+            Vector3 pos = tile.transform.position;
+            pos.y = playerObject.transform.position.y;
+            playerObject.transform.position = pos;
+        }
+
+        tile.EnterTile(playerObject);
+        ChangeState(LoopState.WaitingToRoll);
+
+        Debug.Log($"<color=cyan>[RESTORE]</color> Player at pathIndex {pathIndex}, turn {turn}, loops {loops}");
+    }
+
     private void Update()
     {
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive())

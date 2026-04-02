@@ -28,7 +28,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        if (firstDialogue != null && !HasFlag(NarrativeFlags.GameStarted))
+        // Attempt to resume from a save first; only show intro dialogue on a fresh run.
+        bool saveLoaded = GameSaveController.Instance != null && GameSaveController.Instance.LoadGame();
+
+        if (!saveLoaded && firstDialogue != null && !HasFlag(NarrativeFlags.GameStarted))
             StartCoroutine(ShowFirstDialogue());
     }
 
@@ -72,11 +75,25 @@ public class GameManager : MonoBehaviour
         return narrativeFlags.Contains(flag);
     }
 
+    /// <summary>Returns a snapshot of all active flags. Used by the save system.</summary>
+    public IEnumerable<string> GetAllFlags()
+    {
+        return narrativeFlags;
+    }
+
+    /// <summary>Removes all flags in-place without reloading the scene. Used by the save system on restore.</summary>
+    public void ClearFlags()
+    {
+        narrativeFlags.Clear();
+        hasShownFirstDialogue = false;
+    }
+
     public int GetFlagCount() => narrativeFlags.Count;
 
-    /// <summary>Clears all flags and reloads the active scene.</summary>
+    /// <summary>Deletes the save and reloads the scene for a fresh start.</summary>
     public void ResetGame()
     {
+        GameSaveController.Instance?.DeleteSave();
         narrativeFlags.Clear();
         hasShownFirstDialogue = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);

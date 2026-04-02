@@ -116,4 +116,16 @@ public class ResourceManager : MonoBehaviour
         hasWarningFired = false;
         OnResourcesChanged?.Invoke(CurrentResources);
     }
+
+    /// <summary>
+    /// Sets resources to an exact value. Used exclusively by the save system on restore.
+    /// Does not fire threshold events to avoid false alarms on load.
+    /// </summary>
+    public void SetResources(int amount)
+    {
+        CurrentResources = Mathf.Max(0, amount);
+        hasCriticalWarningFired = CurrentResources <= criticalThreshold;
+        hasWarningFired         = CurrentResources <= warningThreshold;
+        OnResourcesChanged?.Invoke(CurrentResources);
+    }
 }
