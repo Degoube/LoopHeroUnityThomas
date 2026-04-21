@@ -19,6 +19,9 @@ public static class NarrativeFlags
     public const string LoopAware      = "loop_aware";
     public const string TruthDone      = "truth_done";
 
+    // Mini-games
+    public const string RuinsMiniGameWon = "ruins_minigame_won";
+
     // Victory flag (must match GameStateManager.victoryFlag default)
     public const string Victory        = TruthDone;
 }

@@ -3,13 +3,13 @@ using UnityEngine;
 
 /// <summary>
 /// Singleton that handles the full mini-game lifecycle:
-/// pause the loop → spawn mini-game → wait for result → apply result → resume loop.
+/// cache camera -> pause loop -> spawn mini-game -> wait for result -> apply result -> save -> restore -> resume.
 /// </summary>
 public class MiniGameManager : MonoBehaviour
 {
     public static MiniGameManager Instance { get; private set; }
 
-    /// <summary>Fired when a mini-game starts. Useful for UI transitions.</summary>
+    /// <summary>Fired when a mini-game starts.</summary>
     public event Action<BoardTile> OnMiniGameStarted;
 
     /// <summary>Fired when a mini-game ends, before the loop resumes.</summary>
@@ -17,11 +17,17 @@ public class MiniGameManager : MonoBehaviour
 
     public bool IsMiniGameActive { get; private set; }
 
-    // Root under which mini-game GameObjects are instantiated
+    [Header("Mini-Game Root")]
+    [Tooltip("Root transform under which mini-game GameObjects are instantiated.")]
     [SerializeField] private Transform miniGameRoot;
+
+    [Header("Auto-Save")]
+    [Tooltip("If true, automatically saves the game after each mini-game ends.")]
+    [SerializeField] private bool autoSaveAfterMiniGame = true;
 
     private GameObject currentMiniGameInstance;
     private BoardTile currentTile;
+    private Camera cachedMainCamera;
 
     private void Awake()
     {
@@ -36,43 +42,56 @@ public class MiniGameManager : MonoBehaviour
 
     /// <summary>
     /// Launches a mini-game from the given prefab, triggered by sourceTile.
-    /// Pauses PlayerLoopController while the mini-game runs.
     /// </summary>
     public void LaunchMiniGame(GameObject miniGamePrefab, BoardTile sourceTile)
     {
         if (IsMiniGameActive)
         {
-            Debug.LogWarning("MiniGameManager: A mini-game is already active. Ignoring launch request.");
+            Debug.LogWarning("[MiniGameManager] A mini-game is already active.");
             return;
         }
 
         if (miniGamePrefab == null)
         {
-            Debug.LogError("MiniGameManager: miniGamePrefab is null. Cannot launch mini-game.");
+            Debug.LogError("[MiniGameManager] miniGamePrefab is null.");
             return;
         }
 
-        IMiniGame miniGame = miniGamePrefab.GetComponent<IMiniGame>();
-        if (miniGame == null)
+        IMiniGame prefabCheck = miniGamePrefab.GetComponent<IMiniGame>();
+        if (prefabCheck == null)
         {
-            Debug.LogError($"MiniGameManager: Prefab '{miniGamePrefab.name}' has no IMiniGame component.");
+            Debug.LogError($"[MiniGameManager] Prefab '{miniGamePrefab.name}' has no IMiniGame component.");
             return;
         }
 
         currentTile = sourceTile;
         IsMiniGameActive = true;
 
+        // 1. Cache & disable main camera BEFORE instantiation
+        CacheAndDisableMainCamera();
+
+        // 2. Pause the game loop
         PauseLoop();
 
+        // 3. Instantiate & force-activate
         Transform parent = miniGameRoot != null ? miniGameRoot : null;
         currentMiniGameInstance = Instantiate(miniGamePrefab, parent);
+        currentMiniGameInstance.SetActive(true);
 
+        // 4. Start the mini-game
         IMiniGame instance = currentMiniGameInstance.GetComponent<IMiniGame>();
+        if (instance == null)
+        {
+            Debug.LogError("[MiniGameManager] Instantiated object lost its IMiniGame component.");
+            FullCleanup();
+            return;
+        }
+
         instance.OnMiniGameEnded += HandleMiniGameEnded;
         instance.StartMiniGame(sourceTile);
 
         OnMiniGameStarted?.Invoke(sourceTile);
-        Debug.Log($"[MiniGame] Started on tile '{sourceTile?.tileData?.tileName}'");
+        Debug.Log($"[MiniGameManager] Mini-game started on tile '{sourceTile?.tileData?.tileName}'");
     }
 
     private void HandleMiniGameEnded(MiniGameResult result)
@@ -80,11 +99,13 @@ public class MiniGameManager : MonoBehaviour
         if (!IsMiniGameActive)
             return;
 
-        Debug.Log($"[MiniGame] Ended — Success: {result.Success}, ResourceDelta: {result.ResourceDelta}");
+        Debug.Log($"[MiniGameManager] Ended — Success: {result.Success}, Gold: {result.ResourceDelta}, XP: {result.XPDelta}");
 
         ApplyResult(result);
-        CleanUp();
-        ResumeLoop();
+        FullCleanup();
+
+        if (autoSaveAfterMiniGame)
+            GameSaveController.Instance?.SaveGame();
 
         OnMiniGameEnded?.Invoke(result);
     }
@@ -99,11 +120,15 @@ public class MiniGameManager : MonoBehaviour
                 ResourceManager.Instance.RemoveResources(-result.ResourceDelta);
         }
 
+        if (result.XPDelta > 0 && XPManager.Instance != null)
+            XPManager.Instance.AddXP(result.XPDelta);
+
         if (result.Success && !string.IsNullOrEmpty(result.FlagToAdd))
             GameManager.Instance?.AddFlag(result.FlagToAdd);
     }
 
-    private void CleanUp()
+    /// <summary>Destroys mini-game instance, restores camera, resumes loop.</summary>
+    private void FullCleanup()
     {
         if (currentMiniGameInstance != null)
         {
@@ -111,16 +136,49 @@ public class MiniGameManager : MonoBehaviour
             currentMiniGameInstance = null;
         }
 
+        RestoreMainCamera();
+        ResumeLoop();
+
         currentTile = null;
         IsMiniGameActive = false;
     }
+
+    // ── Camera ────────────────────────────────────────────────────────────────
+
+    private void CacheAndDisableMainCamera()
+    {
+        cachedMainCamera = Camera.main;
+
+        if (cachedMainCamera != null)
+        {
+            cachedMainCamera.gameObject.SetActive(false);
+            Debug.Log("[MiniGameManager] Main camera cached and disabled.");
+        }
+        else
+        {
+            Debug.LogWarning("[MiniGameManager] No MainCamera found to cache.");
+        }
+    }
+
+    private void RestoreMainCamera()
+    {
+        if (cachedMainCamera != null)
+        {
+            cachedMainCamera.gameObject.SetActive(true);
+            Debug.Log("[MiniGameManager] Main camera restored.");
+        }
+
+        cachedMainCamera = null;
+    }
+
+    // ── Loop ──────────────────────────────────────────────────────────────────
 
     private static void PauseLoop()
     {
         if (PlayerLoopController.Instance != null)
             PlayerLoopController.Instance.enabled = false;
 
-        Debug.Log("[MiniGame] Loop paused.");
+        Debug.Log("[MiniGameManager] Loop paused.");
     }
 
     private static void ResumeLoop()
@@ -128,6 +186,6 @@ public class MiniGameManager : MonoBehaviour
         if (PlayerLoopController.Instance != null)
             PlayerLoopController.Instance.enabled = true;
 
-        Debug.Log("[MiniGame] Loop resumed.");
+        Debug.Log("[MiniGameManager] Loop resumed.");
     }
 }

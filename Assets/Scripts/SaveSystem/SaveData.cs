@@ -28,6 +28,9 @@ public class SaveData
     // ── Resources ─────────────────────────────────────────────────────────────
     public int currentResources;
 
+    // ── Experience ────────────────────────────────────────────────────────────
+    public int currentXP;
+
     // ── Narrative flags ───────────────────────────────────────────────────────
     /// <summary>All flags that have been set via GameManager.AddFlag().</summary>
     public List<string> narrativeFlags = new List<string>();

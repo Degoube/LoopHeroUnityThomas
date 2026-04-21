@@ -9,12 +9,15 @@ public struct MiniGameResult
     /// <summary>Optional resource delta to apply after the mini-game (positive = gain, negative = loss).</summary>
     public int ResourceDelta;
 
+    /// <summary>XP delta to apply after the mini-game (always positive or zero).</summary>
+    public int XPDelta;
+
     /// <summary>Optional narrative flag to set on success.</summary>
     public string FlagToAdd;
 
-    public static MiniGameResult Win(int resourceDelta = 0, string flagToAdd = null)
-        => new MiniGameResult { Success = true,  ResourceDelta = resourceDelta, FlagToAdd = flagToAdd };
+    public static MiniGameResult Win(int resourceDelta = 0, int xpDelta = 0, string flagToAdd = null)
+        => new MiniGameResult { Success = true, ResourceDelta = resourceDelta, XPDelta = xpDelta, FlagToAdd = flagToAdd };
 
-    public static MiniGameResult Lose(int resourceDelta = 0)
-        => new MiniGameResult { Success = false, ResourceDelta = resourceDelta };
+    public static MiniGameResult Lose(int resourceDelta = 0, int xpDelta = 0)
+        => new MiniGameResult { Success = false, ResourceDelta = resourceDelta, XPDelta = xpDelta };
 }

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e47640649cd314d831ac5b8107c1b7, type: 3}
+  m_Name: HideAndSeekConfig
+  m_EditorClassIdentifier: 
+  gameDuration: 30
+  playerSpeed: 5
+  hideTransitionDuration: 0.3
+  aiProfiles:
+  - profileName: Patrouilleur Lent
+    patrolPattern: 0
+    patrolSpeed: 2.5
+    waitTimeAtPoint: 1.5
+    visionRange: 7
+    visionHalfAngle: 40
+    pursuitSpeed: 5
+    pursuitMemoryDuration: 2.5
+    attackRange: 1.2
+  - profileName: Chasseur Rapide
+    patrolPattern: 2
+    patrolSpeed: 4
+    waitTimeAtPoint: 0.5
+    visionRange: 10
+    visionHalfAngle: 30
+    pursuitSpeed: 7
+    pursuitMemoryDuration: 3
+    attackRange: 1
+  goldRewardOnWin: 40
+  xpRewardOnWin: 25
+  goldPenaltyOnLose: 15
+  xpRewardOnLose: 10
+  controlsHintDuration: 4
+  resultDisplayDuration: 2.5

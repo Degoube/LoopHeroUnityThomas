@@ -100,6 +100,10 @@ public class GameSaveController : MonoBehaviour
         if (ResourceManager.Instance != null)
             data.currentResources = ResourceManager.Instance.CurrentResources;
 
+        // XP
+        if (XPManager.Instance != null)
+            data.currentXP = XPManager.Instance.CurrentXP;
+
         // Narrative flags
         if (GameManager.Instance != null)
             data.narrativeFlags = new List<string>(GameManager.Instance.GetAllFlags());
@@ -171,6 +175,9 @@ public class GameSaveController : MonoBehaviour
 
         // 2. Resources
         ResourceManager.Instance?.SetResources(data.currentResources);
+
+        // 2b. XP
+        XPManager.Instance?.SetXP(data.currentXP);
 
         // 3. Player position & loop state
         PlayerLoopController.Instance?.RestoreState(data.currentPathIndex, data.currentTurn, data.totalLoops);

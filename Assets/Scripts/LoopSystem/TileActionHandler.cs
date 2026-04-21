@@ -138,13 +138,19 @@ public class TileActionHandler : MonoBehaviour
     {
         TileNameDisplay.Instance?.ShowTileName("Ruines Anciennes");
 
-        int goldFound = UnityEngine.Random.Range(ruinsGoldMin, ruinsGoldMax + 1);
-        ResourceManager.Instance?.AddResources(goldFound);
-
         TryFirstVisit(NarrativeFlags.VisitedRuins, ruinsDialogue);
         tile.MarkAsVisited();
 
         onRuinsTile?.Invoke(activator, tile);
+
+        // The mini-game launch is handled by TryLaunchMiniGame (called after this).
+        // If no mini-game prefab is configured on the TileData, grant random gold as fallback.
+        if (tile.tileData == null || !tile.tileData.triggersMiniGame || tile.tileData.miniGamePrefab == null)
+        {
+            int goldFound = UnityEngine.Random.Range(ruinsGoldMin, ruinsGoldMax + 1);
+            ResourceManager.Instance?.AddResources(goldFound);
+            Debug.Log($"[Ruins] No mini-game configured — fallback gold: +{goldFound}");
+        }
     }
 
     // ── Combat ────────────────────────────────────────────────────────────────
