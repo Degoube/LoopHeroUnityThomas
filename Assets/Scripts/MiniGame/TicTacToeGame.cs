@@ -5,9 +5,19 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Tic-Tac-Toe mini-game.
-/// Player = X, AI = O. AI plays randomly after a short delay.
+/// Tic-Tac-Toe mini-game (Morpion).
+/// Player = X, AI = O. AI plays with win/block/center/random strategy.
 /// Implements IMiniGame — MiniGameManager owns the lifecycle.
+///
+/// TILE: Altar
+///
+/// VICTORY CONDITIONS:
+///   Win  = Player aligns 3 symbols (row, column, or diagonal)  -> +gold, +XP, flag set
+///   Lose = AI aligns 3 symbols                                  -> -gold penalty
+///   Draw = Board full with no winner                             -> No penalty, small XP
+///
+/// PAUSE: MiniGameManager pauses PlayerLoopController before this starts.
+///        MiniGameManager resumes it after OnMiniGameEnded fires.
 /// </summary>
 public class TicTacToeGame : MonoBehaviour, IMiniGame
 {
@@ -27,12 +37,22 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
     public TextMeshProUGUI resultText;
     public GameObject resultPanel;
 
+    [Header("Victory/Defeat Conditions Display")]
+    [Tooltip("Optional text showing win/lose conditions at game start.")]
+    public TextMeshProUGUI conditionsText;
+
     [Header("Result Buttons")]
     public Button closeButton;
 
     [Header("Rewards")]
+    [Tooltip("Gold gained on victory.")]
     public int resourceRewardOnWin  =  30;
+    [Tooltip("XP gained on victory.")]
+    public int xpRewardOnWin = 15;
+    [Tooltip("Gold lost on defeat.")]
     public int resourcePenaltyOnLose = 10;
+    [Tooltip("XP gained on draw (consolation).")]
+    public int xpRewardOnDraw = 5;
 
     [Header("AI")]
     public float aiPlayDelay = 0.7f;
@@ -45,6 +65,11 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
 
     private const string PlayerSymbol = "X";
     private const string AISymbol     = "O";
+
+    private static readonly string VictoryConditionsMessage =
+        "VICTOIRE : Aligner 3 symboles X\n" +
+        "DEFAITE : L'IA aligne 3 symboles O\n" +
+        "EGALITE : Plateau plein sans alignement";
 
     // Win lines: rows, columns, diagonals
     private static readonly int[][] WinLines =
@@ -67,8 +92,12 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         if (resultPanel != null)
             resultPanel.SetActive(false);
 
+        // Show victory/defeat conditions
+        if (conditionsText != null)
+            conditionsText.text = VictoryConditionsMessage;
+
         WireButtons();
-        SetStatus("À toi de jouer !");
+        SetStatus("A toi de jouer !");
         isPlayerTurn = true;
     }
 
@@ -88,7 +117,10 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         }
 
         if (closeButton != null)
+        {
+            closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(OnCloseClicked);
+        }
     }
 
     private void Reset()
@@ -125,7 +157,7 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
             return;
         }
 
-        SetStatus("L'IA réfléchit...");
+        SetStatus("L'IA reflechit...");
         DisableBoard();
         StartCoroutine(AIPlayCoroutine());
     }
@@ -139,7 +171,6 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         int cell = PickAICell();
         if (cell == -1)
         {
-            // No cell available → draw (should be caught earlier, safety net)
             EndGame(TicTacToeOutcome.Draw);
             yield break;
         }
@@ -155,7 +186,7 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
             yield break;
         }
 
-        SetStatus("À toi de jouer !");
+        SetStatus("A toi de jouer !");
     }
 
     /// <summary>
@@ -170,28 +201,17 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         const int ai = 2;
         const int player = 1;
 
-        // 1. Can AI win in one move?
         int winCell = FindCompletingCell(ai);
-        if (winCell != -1)
-            return winCell;
+        if (winCell != -1) return winCell;
 
-        // 2. Must AI block the player?
         int blockCell = FindCompletingCell(player);
-        if (blockCell != -1)
-            return blockCell;
+        if (blockCell != -1) return blockCell;
 
-        // 3. Take center if free
-        if (board[4] == 0)
-            return 4;
+        if (board[4] == 0) return 4;
 
-        // 4. Random empty cell
         return PickRandomEmptyCell();
     }
 
-    /// <summary>
-    /// Returns the index of an empty cell that would complete a winning line
-    /// for the given side (1=player, 2=AI), or -1 if none.
-    /// </summary>
     private int FindCompletingCell(int side)
     {
         foreach (int[] line in WinLines)
@@ -202,13 +222,10 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
             for (int i = 0; i < 3; i++)
             {
                 int cell = board[line[i]];
-                if (cell == side)
-                    sideCount++;
-                else if (cell == 0)
-                    emptyIndex = line[i];
+                if (cell == side) sideCount++;
+                else if (cell == 0) emptyIndex = line[i];
             }
 
-            // Two of three cells are this side and the third is empty → complete/block
             if (sideCount == 2 && emptyIndex != -1)
                 return emptyIndex;
         }
@@ -216,15 +233,13 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         return -1;
     }
 
-    /// <summary>Picks a random empty cell. Returns -1 if the board is full.</summary>
     private int PickRandomEmptyCell()
     {
         int empty = 0;
         for (int i = 0; i < 9; i++)
             if (board[i] == 0) empty++;
 
-        if (empty == 0)
-            return -1;
+        if (empty == 0) return -1;
 
         int target = UnityEngine.Random.Range(0, empty);
         int seen = 0;
@@ -232,8 +247,7 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         {
             if (board[i] == 0)
             {
-                if (seen == target)
-                    return i;
+                if (seen == target) return i;
                 seen++;
             }
         }
@@ -276,7 +290,6 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
                 return a == 1 ? TicTacToeOutcome.PlayerWin : TicTacToeOutcome.AIWin;
         }
 
-        // Draw: no winner and no empty cell
         bool boardFull = true;
         foreach (int cell in board)
             if (cell == 0) { boardFull = false; break; }
@@ -297,27 +310,25 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
         switch (outcome)
         {
             case TicTacToeOutcome.PlayerWin:
-                message = "Tu as gagné ! +ressources";
-                result  = MiniGameResult.Win(resourceRewardOnWin);
+                message = $"VICTOIRE !\n+{resourceRewardOnWin} Gold, +{xpRewardOnWin} XP";
+                result  = MiniGameResult.Win(resourceRewardOnWin, xpRewardOnWin, NarrativeFlags.AltarMiniGameWon);
                 SetStatus("Victoire !");
                 break;
 
             case TicTacToeOutcome.AIWin:
-                message = "L'IA a gagné...";
+                message = $"DEFAITE...\n-{resourcePenaltyOnLose} Gold";
                 result  = MiniGameResult.Lose(-resourcePenaltyOnLose);
-                SetStatus("Défaite !");
+                SetStatus("Defaite !");
                 break;
 
             default: // Draw
-                message = "Égalité !";
-                result  = MiniGameResult.Win(0); // neutral — no penalty on draw
-                SetStatus("Égalité !");
+                message = $"EGALITE !\n+{xpRewardOnDraw} XP";
+                result  = MiniGameResult.Win(0, xpRewardOnDraw);
+                SetStatus("Egalite !");
                 break;
         }
 
         ShowResult(message);
-
-        // Short delay so the player sees the result before the screen closes
         StartCoroutine(CloseAfterDelay(1.8f, result));
     }
 
@@ -334,11 +345,12 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
 
         StopAllCoroutines();
         TicTacToeOutcome outcome = CheckOutcome();
-        MiniGameResult result = outcome == TicTacToeOutcome.PlayerWin
-            ? MiniGameResult.Win(resourceRewardOnWin)
-            : outcome == TicTacToeOutcome.AIWin
-                ? MiniGameResult.Lose(-resourcePenaltyOnLose)
-                : MiniGameResult.Win(0);
+        MiniGameResult result = outcome switch
+        {
+            TicTacToeOutcome.PlayerWin => MiniGameResult.Win(resourceRewardOnWin, xpRewardOnWin, NarrativeFlags.AltarMiniGameWon),
+            TicTacToeOutcome.AIWin     => MiniGameResult.Lose(-resourcePenaltyOnLose),
+            _                          => MiniGameResult.Win(0, xpRewardOnDraw)
+        };
 
         FireResult(result);
     }
@@ -366,6 +378,18 @@ public class TicTacToeGame : MonoBehaviour, IMiniGame
 
         if (resultText != null)
             resultText.text = message;
+    }
+
+    private void OnDestroy()
+    {
+        if (closeButton != null)
+            closeButton.onClick.RemoveAllListeners();
+
+        if (cellButtons != null)
+        {
+            foreach (Button btn in cellButtons)
+                if (btn != null) btn.onClick.RemoveAllListeners();
+        }
     }
 }
 

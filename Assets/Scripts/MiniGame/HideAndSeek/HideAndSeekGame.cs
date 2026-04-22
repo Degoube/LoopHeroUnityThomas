@@ -6,7 +6,14 @@ using UnityEngine;
 /// Main controller for the Hide & Seek mini-game.
 /// Implements IMiniGame — MiniGameManager owns the lifecycle and camera management.
 ///
-/// Victory = survived the timer. Defeat = caught by an AI.
+/// TILE: Ruins
+///
+/// VICTORY CONDITIONS:
+///   Win  = Survive until the timer runs out without being caught  -> +gold, +XP, flag set
+///   Lose = Caught by an AI enemy before time expires              -> -gold penalty
+///
+/// PAUSE: MiniGameManager pauses PlayerLoopController before this starts.
+///        MiniGameManager resumes it after OnMiniGameEnded fires.
 /// </summary>
 public class HideAndSeekGame : MonoBehaviour, IMiniGame
 {

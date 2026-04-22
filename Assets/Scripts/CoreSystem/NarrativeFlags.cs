@@ -20,7 +20,10 @@ public static class NarrativeFlags
     public const string TruthDone      = "truth_done";
 
     // Mini-games
-    public const string RuinsMiniGameWon = "ruins_minigame_won";
+    public const string RuinsMiniGameWon  = "ruins_minigame_won";
+    public const string CombatMiniGameWon = "combat_minigame_won";
+    public const string RelicMiniGameWon  = "relic_minigame_won";
+    public const string AltarMiniGameWon  = "altar_minigame_won";
 
     // Victory flag (must match GameStateManager.victoryFlag default)
     public const string Victory        = TruthDone;
