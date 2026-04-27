@@ -42,6 +42,7 @@ public class HideAndSeekGame : MonoBehaviour, IMiniGame
     private float elapsedTime;
     private bool isRunning;
     private bool playerCaught;
+    private bool countdownActive;
 
     // ── IMiniGame ─────────────────────────────────────────────────────────────
 
@@ -70,21 +71,87 @@ public class HideAndSeekGame : MonoBehaviour, IMiniGame
             Debug.LogError("[HideAndSeek] Player reference is null!");
         }
 
-        // Initialize AI
+        // Initialize AI (paused until countdown finishes)
         InitializeEnemies();
+        PauseAllEnemies();
 
         // Initialize HUD
         if (hud != null)
             hud.Initialize();
 
+        // Disable player input during countdown
+        if (player != null)
+            player.SetInputEnabled(false);
+
         // Start
         elapsedTime = 0f;
-        isRunning = true;
+        isRunning = false;
         playerCaught = false;
+        countdownActive = true;
+
+        StartCoroutine(CountdownThenStart());
+
+        Debug.Log($"[HideAndSeek] Countdown started — Duration: {config.countdownDuration}s, Game: {config.gameDuration}s, Enemies: {enemies?.Length ?? 0}");
+    }
+
+    // ── Countdown ───────────────────────────────────────────────────────────
+
+    private IEnumerator CountdownThenStart()
+    {
+        float countdown = config.countdownDuration;
+
+        if (countdown > 0f)
+        {
+            int lastShown = -1;
+            while (countdown > 0f)
+            {
+                int display = Mathf.CeilToInt(countdown);
+                if (display != lastShown)
+                {
+                    hud?.ShowCountdown(display.ToString());
+                    lastShown = display;
+                }
+                countdown -= Time.deltaTime;
+                yield return null;
+            }
+
+            hud?.ShowCountdown("GO !");
+            yield return new WaitForSeconds(0.5f);
+            hud?.HideCountdown();
+        }
+
+        // Start gameplay
+        countdownActive = false;
+        isRunning = true;
+
+        if (player != null)
+            player.SetInputEnabled(true);
+
+        ResumeAllEnemies();
 
         StartCoroutine(HideControlsHintAfterDelay());
 
-        Debug.Log($"[HideAndSeek] Started — Duration: {config.gameDuration}s, Enemies: {enemies?.Length ?? 0}");
+        Debug.Log("[HideAndSeek] Countdown finished — Game started!");
+    }
+
+    private void PauseAllEnemies()
+    {
+        if (enemies == null) return;
+        foreach (HideAndSeekAI enemy in enemies)
+        {
+            if (enemy != null)
+                enemy.StopAI();
+        }
+    }
+
+    private void ResumeAllEnemies()
+    {
+        if (enemies == null) return;
+        foreach (HideAndSeekAI enemy in enemies)
+        {
+            if (enemy != null)
+                enemy.ResumeAI();
+        }
     }
 
     // ── Update ────────────────────────────────────────────────────────────────

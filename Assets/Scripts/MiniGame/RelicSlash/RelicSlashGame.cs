@@ -45,6 +45,7 @@ public class RelicSlashGame : MonoBehaviour, IMiniGame
     private float lastHitTime;
     private bool gameActive;
     private bool gameEnded;
+    private RewardRollResult? cachedVictoryReward;
 
     // ── IMiniGame Implementation ──────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ public class RelicSlashGame : MonoBehaviour, IMiniGame
         lastHitTime = 0f;
         gameActive = true;
         gameEnded = false;
+        cachedVictoryReward = null;
 
         // Activate UI
         if (uiRoot != null) uiRoot.SetActive(true);
@@ -227,16 +229,37 @@ public class RelicSlashGame : MonoBehaviour, IMiniGame
 
     // ── Reward Building ───────────────────────────────────────────────────────
 
-    private MiniGameResult BuildMiniGameResult(bool victory)
+    /// <summary>
+    /// Rolls the reward once and caches it so display and result use the same values.
+    /// </summary>
+    private RewardRollResult RollVictoryReward()
     {
-        if (config.rewardTable != null && victory)
+        if (cachedVictoryReward.HasValue)
+            return cachedVictoryReward.Value;
+
+        if (config.rewardTable != null)
         {
-            RewardRollResult rollResult = config.rewardTable.Roll();
-            return rollResult.ToMiniGameResult(true, NarrativeFlags.RelicMiniGameWon);
+            cachedVictoryReward = config.rewardTable.Roll();
+        }
+        else
+        {
+            cachedVictoryReward = new RewardRollResult
+            {
+                GoldAmount = config.fallbackGoldReward,
+                XPAmount = config.fallbackXPReward
+            };
         }
 
+        return cachedVictoryReward.Value;
+    }
+
+    private MiniGameResult BuildMiniGameResult(bool victory)
+    {
         if (victory)
-            return MiniGameResult.Win(config.fallbackGoldReward, config.fallbackXPReward, NarrativeFlags.RelicMiniGameWon);
+        {
+            RewardRollResult reward = RollVictoryReward();
+            return reward.ToMiniGameResult(true, NarrativeFlags.RelicMiniGameWon);
+        }
 
         return MiniGameResult.Lose(-config.defeatGoldPenalty);
     }
@@ -246,12 +269,7 @@ public class RelicSlashGame : MonoBehaviour, IMiniGame
         if (!victory)
             return $"Score insuffisant.\n-{config.defeatGoldPenalty} Gold";
 
-        if (config.rewardTable != null)
-        {
-            RewardRollResult rollResult = config.rewardTable.Roll();
-            return $"+{rollResult.GoldAmount} Gold\n+{rollResult.XPAmount} XP";
-        }
-
-        return $"+{config.fallbackGoldReward} Gold\n+{config.fallbackXPReward} XP";
+        RewardRollResult reward = RollVictoryReward();
+        return $"+{reward.GoldAmount} Gold\n+{reward.XPAmount} XP";
     }
 }

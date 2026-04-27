@@ -14,6 +14,10 @@ public class HideAndSeekConfig : ScriptableObject
     [Range(10f, 120f)]
     public float gameDuration = 30f;
 
+    [Tooltip("Duration of the countdown before gameplay starts (seconds). Set to 0 to skip.")]
+    [Range(0f, 5f)]
+    public float countdownDuration = 3f;
+
     // ── Player ────────────────────────────────────────────────────────────────
     [Header("Player")]
     [Tooltip("Player movement speed (units/s).")]

@@ -43,6 +43,7 @@ public class PlayerLoopController : MonoBehaviour
     private int remainingMoves;
     private bool isProcessing;
     private List<BoardTile> currentPath = new List<BoardTile>();
+    private CharacterAnimationHandler animHandler;
 
     private void Awake()
     {
@@ -66,6 +67,8 @@ public class PlayerLoopController : MonoBehaviour
         {
             diceRoller.OnRollComplete += OnDiceRolled;
         }
+
+        animHandler = GetComponent<CharacterAnimationHandler>();
 
         StartCoroutine(InitializePlayerAfterBoard());
     }
@@ -230,7 +233,17 @@ public class PlayerLoopController : MonoBehaviour
         Vector3 startPos = playerObject.transform.position;
         Vector3 targetPos = targetTile.transform.position;
         targetPos.y = startPos.y;
-        
+
+        // Face movement direction
+        Vector3 moveDir = (targetPos - startPos);
+        moveDir.y = 0f;
+        if (moveDir.sqrMagnitude > 0.01f)
+            playerObject.transform.forward = moveDir.normalized;
+
+        // Start movement animation
+        if (animHandler != null)
+            animHandler.SetSpeed(1f);
+
         float elapsed = 0f;
         float duration = 1f / moveSpeed;
 
@@ -241,6 +254,10 @@ public class PlayerLoopController : MonoBehaviour
             playerObject.transform.position = Vector3.Lerp(startPos, targetPos, t);
             yield return null;
         }
+
+        // Stop movement animation
+        if (animHandler != null)
+            animHandler.StopMovement();
 
         playerObject.transform.position = targetPos;
         CurrentTile = targetTile;
@@ -301,22 +318,6 @@ public class PlayerLoopController : MonoBehaviour
         }
 
         RestartTurn();
-    }
-
-    private void CompleteLoop()
-    {
-        TotalLoops++;
-        OnLoopCompleted?.Invoke(TotalLoops);
-
-        if (showDebugInfo)
-            Debug.Log($"Loop {TotalLoops} completed!");
-
-        GameManager.Instance?.AddFlag($"loop_{TotalLoops}_complete");
-
-        if (restartLoopAutomatically)
-            RestartLoop();
-        else
-            ChangeState(LoopState.GameOver);
     }
 
     public void RestartLoop()

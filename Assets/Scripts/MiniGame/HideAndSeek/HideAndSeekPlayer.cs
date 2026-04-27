@@ -25,6 +25,7 @@ public class HideAndSeekPlayer : MonoBehaviour
     public event Action OnPlayerCaught;
 
     private CharacterController characterController;
+    private CharacterAnimationHandler animHandler;
     private float moveSpeed;
     private bool inputEnabled;
 
@@ -39,6 +40,7 @@ public class HideAndSeekPlayer : MonoBehaviour
     {
         moveSpeed = speed;
         characterController = GetComponent<CharacterController>();
+        animHandler = GetComponent<CharacterAnimationHandler>();
         inputEnabled = true;
         IsHidden = false;
 
@@ -97,6 +99,10 @@ public class HideAndSeekPlayer : MonoBehaviour
             move = direction * (moveSpeed * Time.deltaTime);
             transform.forward = direction;
         }
+
+        // Drive animation based on movement
+        if (animHandler != null)
+            animHandler.SetSpeed(direction.sqrMagnitude > 0.01f ? 1f : 0f);
 
         // Apply gravity to keep grounded
         if (!characterController.isGrounded)

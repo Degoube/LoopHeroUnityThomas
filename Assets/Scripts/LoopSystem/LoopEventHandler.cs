@@ -1,6 +1,12 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Inspector bridge that exposes PlayerLoopController C# events as UnityEvents.
+/// This allows Designers to wire visual/audio feedback in the Inspector
+/// without writing code. Attach this to a GameObject alongside audio clips
+/// and connect the UnityEvents to any MonoBehaviour method via the Inspector.
+/// </summary>
 public class LoopEventHandler : MonoBehaviour
 {
     [Header("Loop Events")]

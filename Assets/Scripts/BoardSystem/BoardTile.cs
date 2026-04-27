@@ -134,7 +134,7 @@ public class BoardTile : MonoBehaviour
     }
 
     /// <summary>Dims the tile when inactive.</summary>
-    public new void SetActive(bool active)
+    public void SetTileActive(bool active)
     {
         isActive = active;
         ApplyColor(active ? originalColor : originalColor * 0.5f);

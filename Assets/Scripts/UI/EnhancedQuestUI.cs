@@ -81,23 +81,23 @@ public class EnhancedQuestUI : MonoBehaviour
                 
             case TileType.Ruins:
                 info += $"• Or: <color=#FFD700>+{GetRuinsGoldAmount()}</color>\n";
-                info += $"• XP: <color=#00FF00>+{data.experienceReward}</color>\n";
+                info += "• Mini-jeu: Cache-Cache\n";
                 info += "• <color=#FF6666>Non revisitable</color>\n";
                 break;
                 
             case TileType.Combat:
                 info += "• Ressources: <color=#FF0000>-15</color>\n";
-                info += "• Apparition d'ennemis\n";
+                info += "• Mini-jeu: Combat RPG\n";
                 break;
                 
             case TileType.Altar:
                 info += $"• Ressources: <color=#00FF00>+{GetAltarHealAmount()}</color>\n";
-                info += $"• XP: <color=#00FF00>+{data.experienceReward}</color>\n";
+                info += "• Mini-jeu: Morpion\n";
                 break;
                 
             case TileType.Relic:
                 info += $"• Ressources: <color=#00FF00>+50</color>\n";
-                info += $"• XP: <color=#00FF00>+{data.experienceReward}</color>\n";
+                info += "• Mini-jeu: Relic Slash\n";
                 info += "• <color=#FF6666>Non revisitable</color>\n";
                 break;
                 

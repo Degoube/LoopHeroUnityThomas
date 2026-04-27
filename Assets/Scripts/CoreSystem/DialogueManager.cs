@@ -30,6 +30,7 @@ public class DialogueManager : MonoBehaviour
     private DialogueNode currentNode;
     private List<Button> activeChoiceButtons = new List<Button>();
     private Coroutine typewriterCoroutine;
+    private Coroutine autoAdvanceCoroutine;
     private bool isTyping;
     private string fullText;
 
@@ -148,7 +149,7 @@ public class DialogueManager : MonoBehaviour
         {
             Debug.Log("<color=magenta>Auto-advancing to next node...</color>");
             currentNode = currentNode.nextNode;
-            Invoke(nameof(DisplayCurrentNode), 0.5f);
+            autoAdvanceCoroutine = StartCoroutine(AutoAdvanceToNextNode());
         }
         else
         {
@@ -164,6 +165,13 @@ public class DialogueManager : MonoBehaviour
             continuePromptText.gameObject.SetActive(true);
             continuePromptText.text = "Appuyez sur ESPACE pour continuer";
         }
+    }
+
+    private IEnumerator AutoAdvanceToNextNode()
+    {
+        yield return new WaitForSeconds(0.5f);
+        autoAdvanceCoroutine = null;
+        DisplayCurrentNode();
     }
 
     private void HideContinuePrompt()
@@ -261,6 +269,12 @@ public class DialogueManager : MonoBehaviour
         if (typewriterCoroutine != null)
         {
             StopCoroutine(typewriterCoroutine);
+        }
+
+        if (autoAdvanceCoroutine != null)
+        {
+            StopCoroutine(autoAdvanceCoroutine);
+            autoAdvanceCoroutine = null;
         }
 
         ClearChoices();

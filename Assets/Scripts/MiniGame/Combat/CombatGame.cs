@@ -41,6 +41,7 @@ public class CombatGame : MonoBehaviour, IMiniGame
     private bool combatOver;
     private int turnCount;
     private CombatOutcome outcome;
+    private RewardRollResult? cachedVictoryReward;
 
     // ── IMiniGame Implementation ──────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ public class CombatGame : MonoBehaviour, IMiniGame
         combatOver = false;
         turnCount = 0;
         outcome = CombatOutcome.None;
+        cachedVictoryReward = null;
 
         // Activate UI
         if (uiRoot != null) uiRoot.SetActive(true);
@@ -465,8 +467,14 @@ public class CombatGame : MonoBehaviour, IMiniGame
 
     // ── Reward Building ───────────────────────────────────────────────────────
 
-    private MiniGameResult BuildVictoryResult()
+    /// <summary>
+    /// Rolls the reward once and caches it so display and result use the same values.
+    /// </summary>
+    private RewardRollResult RollVictoryReward()
     {
+        if (cachedVictoryReward.HasValue)
+            return cachedVictoryReward.Value;
+
         RewardTable table = currentEnemyData != null ? currentEnemyData.rewardTable : null;
 
         if (table == null)
@@ -474,28 +482,30 @@ public class CombatGame : MonoBehaviour, IMiniGame
 
         if (table != null)
         {
-            RewardRollResult rollResult = table.Roll();
-            return rollResult.ToMiniGameResult(true, NarrativeFlags.CombatMiniGameWon);
+            cachedVictoryReward = table.Roll();
+        }
+        else
+        {
+            cachedVictoryReward = new RewardRollResult
+            {
+                GoldAmount = config.fallbackGoldReward,
+                XPAmount = config.fallbackXPReward
+            };
         }
 
-        // Fallback if no reward table
-        return MiniGameResult.Win(config.fallbackGoldReward, config.fallbackXPReward, NarrativeFlags.CombatMiniGameWon);
+        return cachedVictoryReward.Value;
+    }
+
+    private MiniGameResult BuildVictoryResult()
+    {
+        RewardRollResult reward = RollVictoryReward();
+        return reward.ToMiniGameResult(true, NarrativeFlags.CombatMiniGameWon);
     }
 
     private string BuildVictoryDetails()
     {
-        RewardTable table = currentEnemyData != null ? currentEnemyData.rewardTable : null;
-
-        if (table == null)
-            table = config.defaultRewardTable;
-
-        if (table != null)
-        {
-            RewardRollResult rollResult = table.Roll();
-            return $"+{rollResult.GoldAmount} Gold\n+{rollResult.XPAmount} XP";
-        }
-
-        return $"+{config.fallbackGoldReward} Gold\n+{config.fallbackXPReward} XP";
+        RewardRollResult reward = RollVictoryReward();
+        return $"+{reward.GoldAmount} Gold\n+{reward.XPAmount} XP";
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

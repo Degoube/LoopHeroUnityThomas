@@ -7,6 +7,10 @@ using TMPro;
 /// </summary>
 public class HideAndSeekHUD : MonoBehaviour
 {
+    [Header("Countdown")]
+    [Tooltip("Large centered text for countdown display (3, 2, 1, GO!).")]
+    [SerializeField] private TextMeshProUGUI countdownText;
+
     [Header("Timer")]
     [Tooltip("Text displayed at the top-center showing remaining time.")]
     [SerializeField] private TextMeshProUGUI timerText;
@@ -40,7 +44,29 @@ public class HideAndSeekHUD : MonoBehaviour
         if (resultPanel != null)
             resultPanel.SetActive(false);
 
+        if (countdownText != null)
+            countdownText.gameObject.SetActive(false);
+
         UpdateTimer(0f);
+    }
+
+    /// <summary>Shows a large countdown number or text (e.g., "3", "2", "1", "GO!").</summary>
+    public void ShowCountdown(string text)
+    {
+        if (countdownText == null)
+            return;
+
+        countdownText.gameObject.SetActive(true);
+        countdownText.text = text;
+        countdownText.fontSize = 72;
+        countdownText.color = Color.white;
+    }
+
+    /// <summary>Hides the countdown overlay.</summary>
+    public void HideCountdown()
+    {
+        if (countdownText != null)
+            countdownText.gameObject.SetActive(false);
     }
 
     /// <summary>Hides the controls hint after the intro period.</summary>

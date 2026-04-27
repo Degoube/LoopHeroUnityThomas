@@ -26,6 +26,7 @@ public class HideAndSeekAI : MonoBehaviour
     private AIProfile profile;
     private HideAndSeekPlayer targetPlayer;
     private CharacterController controller;
+    private CharacterAnimationHandler animHandler;
     private AIState currentState;
     private bool isActive;
 
@@ -51,6 +52,7 @@ public class HideAndSeekAI : MonoBehaviour
         profile = aiProfile;
         targetPlayer = player;
         controller = GetComponent<CharacterController>();
+        animHandler = GetComponent<CharacterAnimationHandler>();
         currentState = AIState.Patrolling;
         currentWaypointIndex = 0;
         waypointDirection = 1;
@@ -63,6 +65,15 @@ public class HideAndSeekAI : MonoBehaviour
     public void StopAI()
     {
         isActive = false;
+        if (animHandler != null)
+            animHandler.StopMovement();
+    }
+
+    /// <summary>Resumes AI behavior after a pause (e.g., countdown).</summary>
+    public void ResumeAI()
+    {
+        if (profile != null && targetPlayer != null)
+            isActive = true;
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -100,7 +111,11 @@ public class HideAndSeekAI : MonoBehaviour
         direction.y = 0f;
 
         if (direction.sqrMagnitude < 0.01f)
+        {
+            if (animHandler != null)
+                animHandler.SetSpeed(0f);
             return;
+        }
 
         Vector3 move = direction.normalized * (speed * Time.deltaTime);
 
@@ -114,6 +129,13 @@ public class HideAndSeekAI : MonoBehaviour
         Vector3 faceDir = direction.normalized;
         if (faceDir.sqrMagnitude > 0.01f)
             transform.forward = faceDir;
+
+        // Drive animation — normalize speed between patrol (0.5) and pursuit (1.0)
+        if (animHandler != null)
+        {
+            float normalizedSpeed = Mathf.InverseLerp(0f, profile.pursuitSpeed, speed);
+            animHandler.SetSpeed(normalizedSpeed);
+        }
     }
 
     // ── Patrol ────────────────────────────────────────────────────────────────
@@ -135,6 +157,8 @@ public class HideAndSeekAI : MonoBehaviour
         {
             waitTimer = profile.waitTimeAtPoint;
             currentState = AIState.Waiting;
+            if (animHandler != null)
+                animHandler.StopMovement();
         }
     }
 
@@ -266,6 +290,13 @@ public class HideAndSeekAI : MonoBehaviour
             {
                 currentState = AIState.Attacking;
                 isActive = false;
+
+                if (animHandler != null)
+                {
+                    animHandler.StopMovement();
+                    animHandler.PlayAttack();
+                }
+
                 targetPlayer.Caught();
                 OnPlayerCaught?.Invoke();
                 Debug.Log($"[AI] '{profile.profileName}' caught the player!");

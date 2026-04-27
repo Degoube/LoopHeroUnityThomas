@@ -27,10 +27,6 @@ public class TileData : ScriptableObject
     [Tooltip("Prefab must have a component that implements IMiniGame.")]
     public GameObject miniGamePrefab;
 
-    [Header("Rewards")]
-    public int goldReward;
-    public int experienceReward;
-
     [Header("Audio")]
     public AudioClip enterSound;
     public AudioClip actionSound;

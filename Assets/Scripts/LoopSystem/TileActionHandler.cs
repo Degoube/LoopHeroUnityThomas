@@ -43,8 +43,12 @@ public class TileActionHandler : MonoBehaviour
     public DialogueData relicDialogue;
     private const int RelicResourceValue = 50;
 
+    private GameObject cachedPlayer;
+
     private void Start()
     {
+        cachedPlayer = GameObject.FindGameObjectWithTag("Player");
+
         if (BoardManager.Instance == null)
         {
             Debug.LogWarning("[TileActionHandler] BoardManager not found.");
@@ -62,7 +66,7 @@ public class TileActionHandler : MonoBehaviour
 
     private void HandleTileActivation(BoardTile tile)
     {
-        GameObject activator = GameObject.FindGameObjectWithTag("Player");
+        GameObject activator = cachedPlayer;
         bool hasMiniGame = HasMiniGameConfigured(tile);
 
         switch (tile.tileData.tileType)
